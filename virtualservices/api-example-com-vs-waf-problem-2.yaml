@@ -1,0 +1,31 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: vs
+  namespace: gloo-system
+  labels:
+    app: httpbin
+spec:
+  virtualHost:
+    domains:
+    - 'api.example.com'
+    routes:
+    - matchers:
+      - prefix: /httpbin/
+      routeAction:
+        single:
+          upstream:
+            name: default-httpbin-8000
+            namespace: gloo-system 
+      options:
+        prefixRewrite: /
+    options:
+      waf:
+        customInterventionMessage: 'ModSecurity intervention! Custom message details here..'
+        ruleSets:
+        - ruleStr: |
+            # Turn rule engine on
+            SecRuleEngine On
+            # Note the "." instead of "," between the CIDR ranges.
+            # SecRule REMOTE_ADDR "!@ipMatch 173.245.48.0/20,103.21.244.0/22" "phase:1,deny,status:403,id:1,msg:'block ip'"
+            SecRule REMOTE_ADDR "!@ipMatch 173.245.48.0/20.103.21.244.0/22" "phase:1,deny,status:403,id:1,msg:'block ip'"

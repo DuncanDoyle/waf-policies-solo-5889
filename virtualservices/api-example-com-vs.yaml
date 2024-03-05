@@ -1,0 +1,29 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: vs
+  namespace: gloo-system
+  labels:
+    app: httpbin
+spec:
+  virtualHost:
+    domains:
+    - 'api.example.com'
+    routes:
+    - matchers:
+      - prefix: /httpbin/
+      routeAction:
+        single:
+          upstream:
+            name: default-httpbin-8000
+            namespace: gloo-system 
+      options:
+        prefixRewrite: /
+    options:
+      waf:
+        customInterventionMessage: 'ModSecurity intervention! Custom message details here..'
+        ruleSets:
+        - ruleStr: |
+            # Turn rule engine on
+            SecRuleEngine On
+            SecRule REQUEST_HEADERS:agent "scammer" "deny,status:418,id:107,phase:1,msg:'blocked scammer'" 
