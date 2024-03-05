@@ -24,8 +24,9 @@ spec:
         customInterventionMessage: 'ModSecurity intervention! Custom message details here..'
         ruleSets:
         - ruleStr: |
-            # Turn rule engine on
-            SecRuleEngine On
-            # Note the "." instead of "," between the CIDR ranges.
-            SecRule REMOTE_ADDR "!@ipMatch 173.245.48.0/20,103.21.244.0/22" "phase:1,deny,status:403,id:1,msg:'block ip'"
-            # SecRule REMOTE_ADDR "!@ipMatch 173.245.48.0/20.103.21.244.0/22" "phase:1,deny,status:403,id:1,msg:'block ip'"
+            # disable ruleid 930100 - TP-414237 - Path Traversal Attack (/../)
+            # Note the underscore in this configuration, which is a malformed WAF policy, resulting in bad config being served to Envoy.
+            _
+            SecRuleRemoveById 124234
+            SecRuleRemoveById 228932
+            SecRuleRemoveById 490101
